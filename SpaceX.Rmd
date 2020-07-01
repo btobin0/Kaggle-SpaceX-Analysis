@@ -1,0 +1,174 @@
+---
+title: "SpaceX"
+output:
+  pdf_document: default
+  html_document: default
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+## R Markdown
+
+## Library
+
+```{r}
+library(tidyverse)
+library(tidyr)
+library(stringr)
+library(ggplot2)
+library(gam)
+library(reshape2)
+```
+
+## Set Working Directory
+
+```{r}
+setwd("/Users/btobi/OneDrive/Documents/Kaggle/SpaceX-Dataset-master")
+list.files()
+```
+
+## Gather Data
+
+```{r}
+LD = read.csv("/Users/btobi/OneDrive/Documents/Kaggle/SpaceX-Dataset-master/SpaceX-Launch-Data.csv" , header = TRUE)
+head(LD)
+```
+
+```{r}
+MD = read.csv("/Users/btobi/OneDrive/Documents/Kaggle/SpaceX-Dataset-master/SpaceX-Missions.csv" , header = TRUE)
+head(MD)
+```
+
+## Clean Data
+
+```{r}
+colnames(LD)
+```
+
+```{r}
+names(LD)[names(LD) == "Flight.Number"] <- "Flight_Number"
+names(LD)[names(LD) == "Booster.Version"] <- "Booster_Version"
+names(LD)[names(LD) == "Payload.Mass..kg."] <- "Payload_Mass_In_kg"
+names(LD)[names(LD) == "Mission.Outcome"] <- "Mission_Outcome"
+names(LD)[names(LD) == "Launch.Site"] <- "Launch_Site"
+names(LD)[names(LD) == "Landing.Outcome"] <- "Landing_Outcome"
+names(LD)[names(LD) == "Time..UTC."] <- "Time"
+LD
+
+```
+
+```{r}
+LD$Payload_Mass_In_kg <- gsub("Â", "", LD$Payload_Mass_In_kg)
+LD
+```
+
+```{r}
+LD$Payload_Mass_In_kg <- gsub("[^[:alnum:]]", "", LD$Payload_Mass_In_kg)
+LD
+```
+
+
+
+```{r}
+LD$Payload_Mass_In_kg[LD$Payload_Mass_In_kg==""]<-NA
+LD
+```
+
+
+```{r}
+LD1 <- LD
+LD1
+```
+
+```{r}
+LD2 <- LD1 %>% 
+  mutate(Payload_Mass_In_kg = ifelse(as.character(Payload_Mass_In_kg) == "Classified",
+                                     NA,
+                                     as.character(Payload_Mass_In_kg)))
+LD2
+```
+
+
+
+```{r}
+x <- c(525,9600)
+result.mean <- mean(x)
+result.mean
+```
+
+```{r}
+LD2$Payload_Mass_In_kg[is.na(LD2$Payload_Mass_In_kg)] <- 5063
+LD2
+```
+
+```{r}
+colsplit(string = gsub(pattern = "\\A*\\(|\\)", replacement = "", x = LD2$Landing_Outcome), pattern = c(" "),names = c("Landing_Outcome","Landing_Type"))
+```
+
+```{r}
+str(LD2)
+```
+
+```{r}
+LD2$Payload_Mass_In_kg <- as.numeric(as.numeric(LD2$Payload_Mass_In_kg))
+str(LD2)
+```
+
+```{r}
+hist(LD2$Payload_Mass_In_kg)
+```
+
+
+```{r}
+ggplot(data=LD2,
+       aes(x=Launch_Site,y=Payload_Mass_In_kg)) +
+       geom_point() +
+       geom_text(
+         label=rownames(LD2),
+         nudge_x = 0.25,
+         nudge_y = 0.25,
+         check_overlap = T
+       )
+
+```
+
+```{r}
+ggplot(data=LD2,
+       aes(x=Orbit, y=Launch_Site)) +
+       geom_point() +
+       geom_text(
+         label=rownames(LD2),
+         nudge_x = 0.25,
+         nudge_y = 0.25,
+         check_overlap = T
+       )
+
+```
+
+```{r}
+ggplot(data=LD2,
+       aes(x=Orbit, y=Payload_Mass_In_kg)) +
+       geom_point() +
+       geom_text(
+         label=rownames(LD2),
+         nudge_x = 0.25,
+         nudge_y = 0.25,
+         check_overlap = T
+       )
+
+```
+
+```{r}
+ggplot(data=LD2,
+       aes(x=Orbit, y=Customer)) +
+       geom_point() +
+       geom_text(
+         label=rownames(LD2),
+         nudge_x = 0.25,
+         nudge_y = 0.25,
+         check_overlap = T
+       )
+
+```
